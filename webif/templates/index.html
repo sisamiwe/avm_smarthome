@@ -1,0 +1,194 @@
+{% extends "base_plugin.html" %}
+
+{% set logo_frame = false %}
+
+<!-- set update_interval to a value > 0 (in milliseconds) to enable periodic data updates -->
+{% set update_interval = 0 %}
+
+<!--
+	Additional script tag for plugin specific javascript code go into this block
+-->
+{% block pluginscripts %}
+<script>
+	function handleUpdatedData(response, dataSet=null) {
+		if (dataSet === 'devices_info' || dataSet === null) {
+			var objResponse = JSON.parse(response);
+			myProto = document.getElementById(dataSet);
+			for (var device in objResponse) {
+				<!--
+				shngInsertText (device+'_source', objResponse[device]['source']);
+				shngInsertText (device+'_powerState', objResponse[device]['powerState']);
+				-->
+			}
+		}
+	}
+</script>
+{% endblock pluginscripts %}
+
+
+{% block headtable %}
+<table class="table table-striped table-hover">
+	<tbody>
+		<tr>
+			<td class="py-1"><strong>Host</strong></td>
+			<td class="py-1">{{ p.host }}</td>
+			<td class="py-1" width="50px"></td>
+			<td class="py-1"><strong>-</strong></td>
+			<td class="py-1">-</td>
+			<td class="py-1" width="50px"></td>
+		</tr>
+		<tr>
+			<td class="py-1"><strong>Username</strong></td>
+			<td class="py-1">{{ p.user }}</td>
+			<td></td>
+			<td class="py-1"><strong>-</strong></td>
+			<td class="py-1">-</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td class="py-1"><strong>Cycle</strong></td>
+			<td class="py-1">{{ p._cycle }}</td>
+			<td></td>
+			<td class="py-1"><strong>-</strong></td>
+			<td class="py-1">-</td>
+			<td></td>
+		</tr>
+	</tbody>
+</table>
+{% endblock headtable %}
+
+
+<!--
+	Additional buttons for the web interface (if any are needed) - displayed below the headtable-section
+-->
+{% block buttons %}
+{% if 1==2 %}
+	<div>
+		<button id="btn1" class="btn btn-shng btn-sm" name="scan" onclick="shngPost('', {learn: 'on'})"><i class="fas fa-question"></i>&nbsp;&nbsp;&nbsp;{{ _('nach Devices suchen') }}&nbsp;</button>
+	</div>
+{% endif %}
+{% endblock %}
+
+<!--
+	Define the number of tabs for the body of the web interface (1 - 3)
+-->
+{% set tabcount = 2 %}
+
+
+<!--
+	Set the tab that will be visible on start, if another tab that 1 is wanted (1 - 3)
+-->
+{% if item_count==0 %}
+	{% set start_tab = 2 %}
+{% endif %}
+
+
+<!--
+	Content block for the first tab of the Webinterface
+-->
+{% set tab1title = "<strong>" ~ p.get_shortname() ~ " Items</strong> (" ~ p._items|length ~ ")" %}
+{% block bodytab1 %}
+<div class="container-fluid m-2">
+    <table class="table table-striped table-hover pluginList">
+        <thead>
+            <tr class="shng_heading">
+                <th>{{ _('Pfad') }}</th>
+                <th>{{ _('Device') }}</th>
+                <th>{{ _('Typ') }}</th>
+                <th>{{ _('AVM Datentyp') }}</th>
+                <th>{{ _('Wert') }}</th>
+                <th>{{ _('Letztes Update') }}</th>
+                <th>{{ _('Letzter Change') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for item in p._items : %}
+                {% if p.get_instance_name() %}
+                    {% set instance_key = "avm_smarthome_data@"+p.get_instance_name() %}
+                {% else %}
+                    {% set instance_key = "avm_smarthome_data" %}
+                {% endif %}
+                <tr id="{{ loop.index }}_click">
+                    <td class="py-1">{{ item.property.path }}</td>
+                    <td class="py-1">{{ item.return_parent().name() }}</td>
+                    <td class="py-1">{{ item.property.type }}</td>
+                    <td class="py-1">{{ item.conf[instance_key] }}</td>
+                    <td class="py-1">{{ item() }}</td>
+                    <td class="py-1">{{ item.property.last_update.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                    <td class="py-1">{{ item.property.last_change.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock bodytab1 %}
+
+
+<!--
+	Content block for the second tab of the Webinterface
+-->
+{% set tab2title = "<strong>" ~ p.get_shortname() ~ " Geräte</strong> (" ~ p._devices|length ~ ")" %}
+{% block bodytab2 %}
+<div class="container-fluid m-2">
+    <table class="table table-striped table-hover pluginList">
+        <thead>
+            <tr class="shng_heading">
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('AIN') }}</th>
+                <th>{{ _('Produkt Name') }}</th>
+                <th>{{ _('Switch') }}</th>
+                <th>{{ _('TempSensor') }}</th>
+                <th>{{ _('Thermostat') }}</th>
+                <th>{{ _('Alarm') }}</th>
+                <th>{{ _('Online') }}</th>
+                <th>{{ _('Letztes Update') }}</th>
+                <th>{{ _('Letzter Change') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in p._devices %}
+                {% if p.get_instance_name() %}
+                    {% set instance_key = "avm_smarthome_data@"+p.get_instance_name() %}
+                {% else %}
+                    {% set instance_key = "avm_smarthome_data" %}
+                {% endif %}
+                <tr id="{{ loop.index }}_click">
+                    <td class="py-1">{{ item.name() }}</td>
+                    <td class="py-1">{{ item.ain() }}</td>
+                    <td class="py-1">{{ item.productname() }}</td>
+                    <td class="py-1">{{ item.has_switch() }}</td>
+                    <td class="py-1">{{ item.has_temperature_sensor() }}</td>
+                    <td class="py-1">{{ item.has_thermostat() }}</td>
+                    <td class="py-1">{{ item.has_alarm() }}</td>
+                    <td class="py-1">{{ item.present() }}</td>
+                    <td class="py-1">{{ item.present.property.last_update.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                    <td class="py-1">{{ item.present.property.last_change.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock bodytab2 %}
+
+
+<!--
+	Content block for the third tab of the Webinterface
+	If wanted, a title for the tab can be defined as:
+		{% set tab3title = "<strong>" ~ p.get_shortname() ~ " Geräte</strong>" %}
+
+	It has to be defined before (and outside) the block bodytab3
+-->
+{% block bodytab3 %}
+{% endblock bodytab3 %}
+
+
+<!--
+	Content block for the fourth tab of the Webinterface
+	If wanted, a title for the tab can be defined as:
+		{% set tab4title = "<strong>" ~ p.get_shortname() ~ " Geräte</strong>" %}
+
+	It has to be defined before (and outside) the block bodytab4
+-->
+{% block bodytab4 %}
+{% endblock bodytab4 %}
