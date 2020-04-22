@@ -41,7 +41,6 @@ class AVM_smarthome(SmartPlugin):
     the update functions for the items
     """
 
-    # Use VERSION = '1.0.0' for your initial plugin Release
     PLUGIN_VERSION = '1.0.0'    # (must match the version specified in plugin.yaml)
 
     def __init__(self, sh):
@@ -65,7 +64,7 @@ class AVM_smarthome(SmartPlugin):
             self.logger = logging.getLogger(__name__)
 
         # get the parameters for the plugin (as defined in metadata plugin.yaml):
-        self._cycle = self.get_parameter_value('ycle')              # the frequency in seconds how often the query shoud be done
+        self._cycle = self.get_parameter_value('cycle')                    # the frequency in seconds how often the query shoud be done
         self.host = self.get_parameter_value('host')                       # IP Adress of the fritzbox
         self.user = self.get_parameter_value('username')                   # Username
         self.password = self.get_parameter_value('password')               # Password
@@ -153,13 +152,13 @@ class AVM_smarthome(SmartPlugin):
         if self.has_iattr(item.conf, 'avm_ain'):
             self.logger.debug('parse item: {}'.format(item))
             self._devices.append(item)
-            self.logger.debug(self._devices)
+            #self.logger.debug(self._devices)
             
         # Process the items read config
         if self.has_iattr(item.conf, 'avm_smarthome_data'):
             self.logger.debug('parse item: {}'.format(item))
             self._items.append(item)
-            self.logger.debug(self._items)
+            #self.logger.debug(self._items)
         
         # Process the item write config
         if self.get_iattr_value(item.conf, 'avm_smarthome_data') in ['set_switch_state', 'set_switch_state_toggle', 'set_temperature']:
@@ -260,6 +259,8 @@ class AVM_smarthome(SmartPlugin):
                             child(device.productname, self.get_shortname())
                         elif self.get_iattr_value(child.conf, 'avm_smarthome_data') == 'manufacturer':
                             child(device.manufacturer, self.get_shortname())
+                        elif self.get_iattr_value(child.conf, 'avm_smarthome_data') == 'firmware_version':
+                            child(device.fw_version, self.get_shortname())   
                         elif self.get_iattr_value(child.conf, 'avm_smarthome_data') == 'present':
                             child(device.present, self.get_shortname())
                         elif self.get_iattr_value(child.conf, 'avm_smarthome_data') == 'lock':

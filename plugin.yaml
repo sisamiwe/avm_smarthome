@@ -21,12 +21,6 @@ plugin:
 
 parameters:
     # Definition of parameters to be configured in etc/plugin.yaml (enter 'parameters: NONE', if section should be empty)
-    instance:
-        type: str
-        description:
-            de: 'Instanz des Plugins'
-            en: 'Instance of plugin'
-            
     cycle:
         type: int
         default: 300
@@ -78,6 +72,7 @@ item_attributes:
         - 'identifier'                  # general
         - 'productname'                 # general
         - 'manufacturer'                # general
+        - 'firmware_version'            # general
         - 'present'                     # general
         - 'lock'                        # general
         - 'device_lock'                 # general
@@ -121,6 +116,9 @@ item_structs:
             type: str
         manufacturer:
             avm_smarthome_data: manufacturer
+            type: str
+        firmware_version:
+            avm_smarthome_data: firmware_version
             type: str
         present:
             avm_smarthome_data: present
